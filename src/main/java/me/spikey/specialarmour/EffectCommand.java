@@ -1,6 +1,10 @@
 package me.spikey.specialarmour;
 
 import com.google.common.collect.Lists;
+import me.spikey.specialarmour.customEffects.Effect;
+import me.spikey.specialarmour.customEffects.EffectManager;
+import me.spikey.specialarmour.utils.ByteArrayUtils;
+import me.spikey.specialarmour.utils.ByteArrays;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Material;
@@ -17,13 +21,14 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class EffectCommand implements CommandExecutor {
-    private Main main;
+    private EffectManager effectManager;
 
-    public EffectCommand(Main main) {
-        this.main = main;
+    public EffectCommand(EffectManager effectManager) {
+        this.effectManager = effectManager;
     }
 
     @Override
@@ -62,12 +67,12 @@ public class EffectCommand implements CommandExecutor {
             return true;
         }
 
-        if (PotionEffectType.getByName(args[1]) == null) {
+        if (effectManager.getEffectFromName(args[1]) == null) {
             player.sendMessage("This is not a valid effect.");
             return true;
         }
 
-        PotionEffectType potionEffectType = PotionEffectType.getByName(args[1]);
+        Effect effect = effectManager.getEffectFromName(args[1]);
 
         ItemStack itemStack = player.getInventory().getItemInMainHand();
 
@@ -75,23 +80,26 @@ public class EffectCommand implements CommandExecutor {
 
         PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 
-        if (!container.has(main.getKey(), PersistentDataType.BYTE_ARRAY)) {
+        if (!container.has(Main.indexKey, PersistentDataType.BYTE_ARRAY)) {
             player.sendMessage("This item does not have any effects applied.");
             return true;
         }
 
-        byte[] bytes = container.get(main.getKey(), PersistentDataType.BYTE_ARRAY);
+        ByteArrays original = new ByteArrays(container.get(Main.indexKey, PersistentDataType.BYTE_ARRAY), container.get(Main.levelKey, PersistentDataType.BYTE_ARRAY));
 
-        for (int x = 0; x < bytes.length; x++) {
-            if (!PotionEffectType.values()[x].equals(potionEffectType)) continue;
-            bytes[x] = 0;
+        ByteArrays byteArrays = ByteArrayUtils.remove(original, effect.id());
+
+        if (Arrays.equals(byteArrays.getIndex(), original.getIndex())) {
+            player.sendMessage("This item does not have this effect.");
+            return true;
         }
 
-        container.set(main.getKey(), PersistentDataType.BYTE_ARRAY, bytes);
+        container.set(Main.indexKey, PersistentDataType.BYTE_ARRAY, byteArrays.getIndex());
+        container.set(Main.levelKey, PersistentDataType.BYTE_ARRAY, byteArrays.getLevels());
 
         itemStack.setItemMeta(itemMeta);
 
-        player.sendMessage("Effect removed!");
+        player.sendMessage(ChatColor.GRAY + "Effect %s removed!".formatted(ChatColor.of(effect.color()) + effect.name() + ChatColor.GRAY));
 
         return true;
     }
@@ -103,20 +111,18 @@ public class EffectCommand implements CommandExecutor {
 
         PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 
-        if (!container.has(main.getKey(), PersistentDataType.BYTE_ARRAY)) {
+        if (!container.has(Main.indexKey, PersistentDataType.BYTE_ARRAY)) {
             player.sendMessage("This item does not have any effects applied.");
             return true;
         }
 
-        //List<String> effects = Lists.newArrayList();
-
         StringBuilder message = new StringBuilder("");
 
-        byte[] bytes = container.get(main.getKey(), PersistentDataType.BYTE_ARRAY);
+        ByteArrays byteArrays = new ByteArrays(container.get(Main.indexKey, PersistentDataType.BYTE_ARRAY), container.get(Main.levelKey, PersistentDataType.BYTE_ARRAY));
 
-        for (int x = 0; x < bytes.length; x++) {
-            if (bytes[x] == 0) continue;
-            message.append(ChatColor.of(new Color(PotionEffectType.values()[x].getColor().asRGB()))).append(PotionEffectType.values()[x].getName()).append(" ").append(bytes[x]).append(ChatColor.GRAY).append(", ");
+        for (int x = 0; x < byteArrays.getIndex().length; x++) {
+            Effect effect = effectManager.getEffectFromID(byteArrays.getIndex()[x]);
+            message.append(ChatColor.of(effect.color())).append(effect.name()).append(" ").append(byteArrays.getLevels()[x]).append(ChatColor.GRAY).append(", ");
         }
         message.delete(message.length()-3, message.length());
 
@@ -137,15 +143,15 @@ public class EffectCommand implements CommandExecutor {
             return true;
         }
 
-        PotionEffectType potionEffectType = PotionEffectType.getByName(args[1]);
+        Effect effect = effectManager.getEffectFromName(args[1]);
 
-        int level = 1;
+        byte level = 1;
         if (args.length != 2) {
             if (Integer.parseInt(args[2]) > 240) {
                 player.sendMessage("You cannot apply an effect of that level.");
                 return true;
             }
-            level = Integer.parseInt(args[2]);
+            level = Byte.parseByte(args[2]);
         }
 
 
@@ -155,25 +161,15 @@ public class EffectCommand implements CommandExecutor {
 
         PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 
-        if (!container.has(main.getKey(), PersistentDataType.BYTE_ARRAY)) {
-
-            List<Byte> bytes = Lists.newArrayList();
-
-            for (int x = 0; x < PotionEffectType.values().length; x++) {
-                bytes.add((byte) 0);
-            }
-
-            container.set(main.getKey(), PersistentDataType.BYTE_ARRAY, ArrayUtils.toPrimitive(bytes.toArray(new Byte[0])));
+        ByteArrays byteArrays = null;
+        if (!container.has(Main.indexKey, PersistentDataType.BYTE_ARRAY) || !container.has(Main.levelKey, PersistentDataType.BYTE_ARRAY)) {
+            byteArrays = ByteArrayUtils.encode(effect.id(), level);
+        } else {
+            ByteArrays original = new ByteArrays(container.get(Main.indexKey, PersistentDataType.BYTE_ARRAY), container.get(Main.levelKey, PersistentDataType.BYTE_ARRAY));
+            byteArrays = ByteArrayUtils.encode(original, effect.id(), level);
         }
-
-        byte[] bytes = container.get(main.getKey(), PersistentDataType.BYTE_ARRAY);
-
-        for (int x = 0; x < bytes.length; x++) {
-            if (!PotionEffectType.values()[x].equals(potionEffectType)) continue;
-            bytes[x] = (byte) level;
-        }
-
-        container.set(main.getKey(), PersistentDataType.BYTE_ARRAY, bytes);
+        container.set(Main.indexKey, PersistentDataType.BYTE_ARRAY, byteArrays.getIndex());
+        container.set(Main.levelKey, PersistentDataType.BYTE_ARRAY, byteArrays.getLevels());
 
         itemStack.setItemMeta(itemMeta);
 

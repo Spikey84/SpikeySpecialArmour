@@ -1,6 +1,7 @@
 package me.spikey.specialarmour;
 
 import com.google.common.collect.Lists;
+import me.spikey.specialarmour.customEffects.EffectManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -10,10 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class EffectTab implements TabCompleter {
-    private Main main;
+    private EffectManager effectManager;
 
-    public EffectTab(Main main) {
-        this.main = main;
+    public EffectTab(EffectManager effectManager) {
+        this.effectManager = effectManager;
     }
 
     @Override
@@ -24,7 +25,7 @@ public class EffectTab implements TabCompleter {
         }
 
         if (args.length == 2 && (args[0].equals("add") || (args[0].equals("remove")))) {
-            return main.getEffectNames();
+            return effectManager.getEffectNames();
         }
 
         return Lists.newArrayList();
