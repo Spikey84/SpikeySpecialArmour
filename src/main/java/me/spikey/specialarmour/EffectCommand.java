@@ -4,12 +4,15 @@ import me.spikey.specialarmour.customEffects.Effect;
 import me.spikey.specialarmour.customEffects.EffectManager;
 import me.spikey.specialarmour.utils.EffectChangeUtil;
 import me.spikey.specialarmour.utils.EffectListResponse;
+import me.spikey.specialarmour.utils.ItemTypes;
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +34,9 @@ public class EffectCommand implements CommandExecutor {
             return true;
         }
 
-        if (player.getInventory().getItemInMainHand().getType().equals(Material.AIR) /* TODO:check this is an armour piece*/) {
+        ItemStack itemStack = player.getInventory().getItemInMainHand();
+
+        if (itemStack.getType().equals(Material.AIR) || ArrayUtils.contains(ItemTypes.armour, itemStack.getType())) {
             commandSender.sendMessage(ChatColor.GRAY + "The item in your hand must be a valid armour piece for this command to run.");
             return true;
         }
