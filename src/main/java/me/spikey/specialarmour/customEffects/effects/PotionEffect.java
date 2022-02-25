@@ -31,7 +31,7 @@ public class PotionEffect implements Effect {
 
     @Override
     public Color color() {
-        return null;
+        return color;
     }
 
     public PotionEffectType potionEffectType() {

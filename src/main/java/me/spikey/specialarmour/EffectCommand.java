@@ -89,10 +89,10 @@ public class EffectCommand implements CommandExecutor {
 
         ByteArrays byteArrays = ByteArrayUtils.remove(original, effect.id());
 
-        if (Arrays.equals(byteArrays.getIndex(), original.getIndex())) {
-            player.sendMessage("This item does not have this effect.");
-            return true;
-        }
+//        if (Arrays.equals(byteArrays.getIndex(), original.getIndex())) {
+//            player.sendMessage("This item does not have this effect.");
+//            return true;
+//        }
 
         container.set(Main.indexKey, PersistentDataType.BYTE_ARRAY, byteArrays.getIndex());
         container.set(Main.levelKey, PersistentDataType.BYTE_ARRAY, byteArrays.getLevels());
@@ -138,7 +138,7 @@ public class EffectCommand implements CommandExecutor {
             return true;
         }
 
-        if (PotionEffectType.getByName(args[1]) == null) {
+        if (effectManager.getEffectFromName(args[1]) == null) {
             player.sendMessage("This is not a valid effect to apply to this item.");
             return true;
         }

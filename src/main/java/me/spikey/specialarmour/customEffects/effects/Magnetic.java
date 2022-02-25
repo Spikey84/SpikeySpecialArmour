@@ -13,7 +13,7 @@ public class Magnetic implements CustomEffect {
 
     @Override
     public byte id() {
-        return 0;
+        return 100;
     }
 
     @Override
