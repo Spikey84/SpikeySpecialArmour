@@ -39,21 +39,16 @@ public class ByteArrayUtils {
     }
 
     public static ByteArrays remove(ByteArrays original, byte id) {
+        byte[] ids = original.getIndex();
+        byte[] levels = original.getLevels();
 
-        List<Byte> ids = Lists.newArrayList(ArrayUtils.toObject(original.getIndex()));
-        List<Byte> levels = Lists.newArrayList(ArrayUtils.toObject(original.getLevels()));
-
-        int toRemove = -1;
-        for (int x = 0; x < ids.size(); x++) {
-            if (id != x) continue;
-            toRemove = x;
+        for (int x = 0; x < ids.length; x++) {
+            if (id != ids[x]) continue;
+            ids = ArrayUtils.remove(ids, x);
+            levels = ArrayUtils.remove(levels, x);
             break;
         }
 
-        if (toRemove == -1) return original;
-        ids.remove(toRemove);
-        levels.remove(toRemove);
-
-        return new ByteArrays(ArrayUtils.toPrimitive(ids.toArray(new Byte[0])), ArrayUtils.toPrimitive(levels.toArray(new Byte[0])));
+        return new ByteArrays(ids, levels);
     }
 }

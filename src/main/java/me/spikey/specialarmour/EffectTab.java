@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class EffectTab implements TabCompleter {
-    private EffectManager effectManager;
+    private final EffectManager effectManager;
 
     public EffectTab(EffectManager effectManager) {
         this.effectManager = effectManager;

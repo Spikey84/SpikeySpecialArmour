@@ -4,6 +4,7 @@ import me.spikey.specialarmour.customEffects.EffectManager;
 import me.spikey.specialarmour.utils.ByteArrays;
 import me.spikey.specialarmour.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,8 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+
+import java.util.Objects;
 
 public class Main extends JavaPlugin {
     public static NamespacedKey indexKey;
@@ -29,8 +30,8 @@ public class Main extends JavaPlugin {
         this.effectManager = new EffectManager();
 
 
-        getCommand("armoureffect").setExecutor(new EffectCommand(effectManager));
-        getCommand("armoureffect").setTabCompleter(new EffectTab(effectManager));
+        Objects.requireNonNull(getCommand("armoureffect")).setExecutor(new EffectCommand(effectManager));
+        Objects.requireNonNull(getCommand("armoureffect")).setTabCompleter(new EffectTab(effectManager));
 
 
         SchedulerUtils.runRepeating(() -> {
@@ -41,7 +42,7 @@ public class Main extends JavaPlugin {
 
                 for (ItemStack item : player.getInventory().getArmorContents()) {
 
-                    if (item == null) continue;
+                    if (!item.getType().equals(Material.AIR)) continue;
                     ItemMeta itemMeta = item.getItemMeta();
                     PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 
