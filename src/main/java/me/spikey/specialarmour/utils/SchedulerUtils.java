@@ -3,9 +3,6 @@ package me.spikey.specialarmour.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
-import java.sql.Connection;
-import java.util.function.Consumer;
-
 public class SchedulerUtils {
     private static Plugin plugin = null;
 

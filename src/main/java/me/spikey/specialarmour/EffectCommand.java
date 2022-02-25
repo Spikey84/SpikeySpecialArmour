@@ -2,7 +2,6 @@ package me.spikey.specialarmour;
 
 import me.spikey.specialarmour.customEffects.Effect;
 import me.spikey.specialarmour.customEffects.EffectManager;
-import me.spikey.specialarmour.utils.ByteArrays;
 import me.spikey.specialarmour.utils.EffectChangeUtil;
 import me.spikey.specialarmour.utils.EffectListResponse;
 import net.md_5.bungee.api.ChatColor;
@@ -12,11 +11,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EffectCommand implements CommandExecutor {
@@ -34,7 +31,7 @@ public class EffectCommand implements CommandExecutor {
             return true;
         }
 
-        if (player.getInventory().getItemInMainHand() == null || player.getInventory().getItemInMainHand().getType().equals(Material.AIR) /* TODO:check this is an armour piece*/) {
+        if (player.getInventory().getItemInMainHand().getType().equals(Material.AIR) /* TODO:check this is an armour piece*/) {
             commandSender.sendMessage(ChatColor.GRAY + "The item in your hand must be a valid armour piece for this command to run.");
             return true;
         }
@@ -84,7 +81,7 @@ public class EffectCommand implements CommandExecutor {
 
         HashMap<Effect, Byte> effects = responsePacket.effects();
 
-        StringBuilder message = new StringBuilder("");
+        StringBuilder message = new StringBuilder();
 
 
         for (Map.Entry<Effect, Byte> entry : effects.entrySet()) {

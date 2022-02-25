@@ -1,6 +1,5 @@
 package me.spikey.specialarmour.utils;
 
-import com.google.common.collect.Maps;
 import me.spikey.specialarmour.Main;
 import me.spikey.specialarmour.customEffects.Effect;
 import me.spikey.specialarmour.customEffects.EffectManager;
@@ -12,8 +11,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.HashMap;
-
 public class EffectChangeUtil {
 
     public static response AddEffect(ItemStack itemStack, Effect effect, byte level) {
@@ -21,7 +18,7 @@ public class EffectChangeUtil {
 
         PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 
-        ByteArrays byteArrays = null;
+        ByteArrays byteArrays;
         if (!container.has(Main.indexKey, PersistentDataType.BYTE_ARRAY) || !container.has(Main.levelKey, PersistentDataType.BYTE_ARRAY)) {
             byteArrays = ByteArrayUtils.encode(effect.id(), level);
         } else {
@@ -76,7 +73,6 @@ public class EffectChangeUtil {
     }
 
     public static EffectListResponse listEffects(ItemStack itemStack, EffectManager effectManager) {
-        HashMap<Effect, Byte> output = Maps.newHashMap();
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         PersistentDataContainer container = itemMeta.getPersistentDataContainer();
@@ -87,12 +83,7 @@ public class EffectChangeUtil {
 
         ByteArrays byteArrays = new ByteArrays(container.get(Main.indexKey, PersistentDataType.BYTE_ARRAY), container.get(Main.levelKey, PersistentDataType.BYTE_ARRAY));
 
-        for (int x = 0; x < byteArrays.getIndex().length; x++) {
-            Effect effect = effectManager.getEffectFromID(byteArrays.getIndex()[x]);
-            output.put(effect, byteArrays.getLevels()[x]);
-        }
-
-        return new EffectListResponse(response.SUCCESS, output);
+        return new EffectListResponse(response.SUCCESS, ByteArrayUtils.decode(byteArrays, effectManager));
     }
 
     public enum response {
@@ -102,7 +93,7 @@ public class EffectChangeUtil {
         NO_EFFECT("This effect is not on this item."),
         EFFECT_REMOVED("This effect has been removed."),
         SUCCESS("Success!");
-        private String string;
+        private final String string;
 
         response(String string) {
             this.string = string;
