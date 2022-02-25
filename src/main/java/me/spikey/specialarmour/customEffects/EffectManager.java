@@ -1,6 +1,7 @@
 package me.spikey.specialarmour.customEffects;
 
 import com.google.common.collect.Lists;
+import me.spikey.specialarmour.customEffects.effects.Magnetic;
 import me.spikey.specialarmour.customEffects.effects.PotionEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class EffectManager {
-    private List<Effect> effects;
+    private final List<Effect> effects;
     private List<String> names;
 
     public EffectManager() {
@@ -23,22 +24,18 @@ public class EffectManager {
             effects.add(new PotionEffect(potionEffectType, potionEffectType.getName(), (byte) x, new Color(potionEffectType.getColor().asRGB())));
             x++;
         }
+
+        registerEffect(new Magnetic());
     }
 
     public void registerEffect(CustomEffect effect) {
         effects.add(effect);
     }
 
-    public List<Effect> getEffects() {
-        return effects;
-    }
-
     public List<String> getEffectNames() {
         if (names.size() != effects.size()) {
             names = Lists.newArrayList();
-            effects.forEach((effect -> {
-                names.add(effect.name());
-            }));
+            effects.forEach((effect -> names.add(effect.name())));
         }
         return names;
     }
