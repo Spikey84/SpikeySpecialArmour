@@ -2,7 +2,14 @@ name: SpikeySpecialArmour
 main: me.spikey.specialarmour.Main
 version: 1.0
 
+author: SpikeyNoob
+
+website: https://discord.gg/E6qnUexa4A
+
 api-version: 1.13
 
 commands:
-  armoureffect:
+  itemEffect:
+    aliases:
+      - customechant
+    permission: spikey.customenchant

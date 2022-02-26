@@ -1,8 +1,10 @@
 package me.spikey.specialarmour.customEffects;
 
 import com.google.common.collect.Lists;
+import me.spikey.specialarmour.Main;
 import me.spikey.specialarmour.customEffects.effects.Magnetic;
 import me.spikey.specialarmour.customEffects.effects.PotionEffect;
+import me.spikey.specialarmour.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -21,7 +23,7 @@ public class EffectManager {
 
         int x = 0;
         for (PotionEffectType potionEffectType : PotionEffectType.values()) {
-            effects.add(new PotionEffect(potionEffectType, potionEffectType.getName(), (byte) x, new Color(potionEffectType.getColor().asRGB())));
+            effects.add(new PotionEffect(potionEffectType, potionEffectType.getName().toLowerCase(Locale.ROOT), (byte) x, new Color(potionEffectType.getColor().asRGB()), Main.stackPotionEffects));
             x++;
         }
 
@@ -67,9 +69,11 @@ public class EffectManager {
         if (effect instanceof PotionEffect) {
             PotionEffectType potionEffectType = ((PotionEffect) effect).potionEffectType();
 
-            player.addPotionEffect(new org.bukkit.potion.PotionEffect(potionEffectType, 40, level-1));
+            SchedulerUtils.runSync(() -> player.addPotionEffect(new org.bukkit.potion.PotionEffect(potionEffectType, 40, level-1)));
+
         } else if (effect instanceof CustomEffect) {
-            ((CustomEffect) effect).apply(player, level);
+            SchedulerUtils.runSync(() -> ((CustomEffect) effect).apply(player, level));
+
         } else {
             Bukkit.getLogger().info("Unknown effect type!");
         }

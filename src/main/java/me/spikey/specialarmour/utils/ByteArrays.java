@@ -1,14 +1,6 @@
 package me.spikey.specialarmour.utils;
 
-public class ByteArrays {
-    private byte[] index;
-    private byte[] levels;
-
-    public ByteArrays(byte[] index, byte[] levels) {
-        this.index = index;
-
-        this.levels = levels;
-    }
+public record ByteArrays(byte[] index, byte[] levels) {
 
     public byte[] getIndex() {
         return index;

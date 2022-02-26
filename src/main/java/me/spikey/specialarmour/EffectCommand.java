@@ -4,6 +4,7 @@ import me.spikey.specialarmour.customEffects.Effect;
 import me.spikey.specialarmour.customEffects.EffectManager;
 import me.spikey.specialarmour.utils.EffectChangeUtil;
 import me.spikey.specialarmour.utils.EffectListResponse;
+import me.spikey.specialarmour.utils.ItemFrontHandUtils;
 import me.spikey.specialarmour.utils.ItemTypes;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.ArrayUtils;
@@ -12,7 +13,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +36,7 @@ public class EffectCommand implements CommandExecutor {
 
         ItemStack itemStack = player.getInventory().getItemInMainHand();
 
-        if (itemStack.getType().equals(Material.AIR) || ArrayUtils.contains(ItemTypes.armour, itemStack.getType())) {
+        if (itemStack.getType().equals(Material.AIR) || !ItemTypes.armour.contains(itemStack.getType())) {
             commandSender.sendMessage(ChatColor.GRAY + "The item in your hand must be a valid armour piece for this command to run.");
             return true;
         }
@@ -47,8 +47,16 @@ public class EffectCommand implements CommandExecutor {
         }
 
         if (args[0].equals("remove")) {
+            if (!player.hasPermission("spikey.customenchant.remove")) {
+                player.sendMessage("You do not have permission to use this sub command.");
+                return true;
+            }
             return remove(player, args);
         } else if (args[0].equals("add")) {
+            if (!player.hasPermission("spikey.customenchant.add")) {
+                player.sendMessage("You do not have permission to use this sub command.");
+                return true;
+            }
             return add(player, args);
         } else {
             return list(player);
@@ -71,6 +79,7 @@ public class EffectCommand implements CommandExecutor {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
 
         EffectChangeUtil.effectRemove(itemStack, effect).sendResponse(player);
+        if (Main.lore) ItemFrontHandUtils.setEffectLore(itemStack, effectManager);
         return true;
     }
 
@@ -126,6 +135,7 @@ public class EffectCommand implements CommandExecutor {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
 
         EffectChangeUtil.AddEffect(itemStack, effect, level).sendResponse(player);
+        if (Main.lore) ItemFrontHandUtils.setEffectLore(itemStack, effectManager);
         return true;
     }
 
